@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && touch docs/.nojekyll",
     "preview": "vite preview",
     "check": "esbuild check.ts --bundle --platform=node --log-level=warning --outfile=node_modules/.check.cjs && node node_modules/.check.cjs"
   },
