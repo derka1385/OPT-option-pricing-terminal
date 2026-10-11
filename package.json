@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check": "esbuild check.ts --bundle --platform=node --log-level=warning --outfile=node_modules/.check.cjs && node node_modules/.check.cjs"
   },
   "devDependencies": {
     "typescript": "^5.4.0",

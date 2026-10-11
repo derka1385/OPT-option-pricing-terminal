@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OPT // OPTION PRICING TERMINAL v2.0</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --bg2: #111;
+      --bg3: #161616;
+      --border: #222;
+      --border2: #2a2a2a;
+      --green: #00ff88;
+      --blue: #00aaff;
+      --red: #ff4444;
+      --orange: #ffaa00;
+      --text: #ccc;
+      --text2: #666;
+      --text3: #888;
+      --font: 'Courier New', Courier, monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      min-height: 100vh;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 {
+      font-size: 13px;
+      letter-spacing: 0.15em;
+      color: var(--green);
+    }
+
+    #status {
+      font-size: 11px;
+      color: var(--green);
+      letter-spacing: 0.1em;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      height: calc(100vh - 49px);
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 20px 16px;
+    }
+
+    .section-title {
+      font-size: 10px;
+      color: var(--text2);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      margin-top: 20px;
+    }
+
+    .section-title:first-child { margin-top: 0; }
+
+    .field {
+      margin-bottom: 10px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 10px;
+      color: var(--text3);
+      margin-bottom: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .field input[type="number"],
+    .field input[type="text"] {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      padding: 6px 10px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .field input:focus { border-color: var(--blue); }
+
+    .radio-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .radio-group label {
+      flex: 1;
+      text-align: center;
+      padding: 7px;
+      border: 1px solid var(--border2);
+      cursor: pointer;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--text3);
+      transition: all 0.15s;
+      background: var(--bg3);
+    }
+
+    .radio-group input[type="radio"] { display: none; }
+
+    .radio-group input[type="radio"]:checked + label {
+      border-color: var(--green);
+      color: var(--green);
+      background: rgba(0,255,136,0.05);
+    }
+
+    #runBtn {
+      width: 100%;
+      margin-top: 16px;
+      padding: 10px;
+      background: transparent;
+      border: 1px solid var(--green);
+      color: var(--green);
+      font-family: var(--font);
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    #runBtn:hover { background: rgba(0,255,136,0.08); }
+
+    .main-panel {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .placeholder {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text2);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+    }
+
+    #resultsPanel {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .result-cell {
+      background: var(--bg);
+      padding: 14px 16px;
+    }
+
+    .result-cell .label {
+      font-size: 10px;
+      color: var(--text2);
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+
+    .result-cell .value {
+      font-size: 20px;
+      color: var(--green);
+      letter-spacing: 0.05em;
+    }
+
+    .result-cell .value.secondary { font-size: 15px; color: var(--blue); }
+    .result-cell .value.neutral { font-size: 15px; color: var(--text); }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .tab-btn {
+      padding: 8px 16px;
+      background: none;
+      border: none;
+      color: var(--text2);
+      font-family: var(--font);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.15s;
+    }
+
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--green); border-bottom-color: var(--green); }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .greeks-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .greek-cell {
+      background: var(--bg);
+      padding: 12px 14px;
+    }
+
+    .greek-cell .label {
+      font-size: 10px;
+      color: var(--text2);
+      margin-bottom: 4px;
+    }
+
+    .greek-cell .value {
+      font-size: 15px;
+      color: var(--orange);
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .chart-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 12px;
+    }
+
+    .chart-box h3 {
+      font-size: 10px;
+      color: var(--text2);
+      letter-spacing: 0.15em;
+      margin-bottom: 10px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+    }
+
+    .d-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .d-cell {
+      flex: 1;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+    }
+
+    .d-cell .label { font-size: 10px; color: var(--text2); margin-bottom: 4px; }
+    .d-cell .value { font-size: 14px; color: var(--text); }
+
+    .iv-row {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .iv-row .iv-item .label { font-size: 10px; color: var(--text2); margin-bottom: 4px; }
+    .iv-row .iv-item .value { font-size: 14px; color: var(--blue); }
+  </style>
+  <script type="module" crossorigin src="./assets/index-CBDGIz33.js"></script>
+</head>
+<body>
+  <header>
+    <h1>OPT // OPTION PRICING TERMINAL v2.0</h1>
+    <span id="status">READY</span>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="section-title">Contract</div>
+      <div class="section-title" style="margin-top:0;margin-bottom:6px;font-size:9px">Option Type</div>
+      <div class="radio-group">
+        <input type="radio" name="optionType" id="typeCall" value="call" checked />
+        <label for="typeCall">CALL</label>
+        <input type="radio" name="optionType" id="typePut" value="put" />
+        <label for="typePut">PUT</label>
+      </div>
+
+      <div class="section-title">Market Parameters</div>
+      <div class="field">
+        <label>Spot Price S₀</label>
+        <input type="number" id="inputS" value="100" step="1" min="0.01" />
+      </div>
+      <div class="field">
+        <label>Strike K</label>
+        <input type="number" id="inputK" value="100" step="1" min="0.01" />
+      </div>
+      <div class="field">
+        <label>Maturity T (years)</label>
+        <input type="number" id="inputT" value="1" step="0.01" min="0" />
+      </div>
+      <div class="field">
+        <label>Risk-Free Rate r (%)</label>
+        <input type="number" id="inputR" value="5" step="0.1" />
+      </div>
+      <div class="field">
+        <label>Volatility σ (%)</label>
+        <input type="number" id="inputSigma" value="20" step="0.5" min="0" />
+      </div>
+      <div class="field">
+        <label>Dividend Yield q (%)</label>
+        <input type="number" id="inputQ" value="0" step="0.1" min="0" />
+      </div>
+
+      <div class="section-title">Monte Carlo</div>
+      <div class="field">
+        <label>Simulations N</label>
+        <input type="number" id="inputN" value="10000" step="1000" min="100" max="1000000" />
+      </div>
+      <div class="field">
+        <label>Steps / Path</label>
+        <input type="number" id="inputSteps" value="52" step="1" min="1" max="1000" />
+      </div>
+      <div class="field">
+        <label>Seed (optional)</label>
+        <input type="text" id="inputSeed" placeholder="random" />
+      </div>
+
+      <div class="section-title">Market Price (optional)</div>
+      <div class="field">
+        <label>Market Price</label>
+        <input type="number" id="inputMarketPrice" placeholder="—" step="0.01" min="0" />
+      </div>
+
+      <button id="runBtn">▶ RUN PRICING ENGINE</button>
+    </aside>
+
+    <main class="main-panel">
+      <div class="placeholder" id="placeholderMsg">
+        <span>▸ Configure parameters and run the pricing engine</span>
+      </div>
+
+      <div id="resultsPanel">
+        <div class="results-grid">
+          <div class="result-cell">
+            <div class="label">BLACK-SCHOLES</div>
+            <div class="value" id="outBSPrice">—</div>
+          </div>
+          <div class="result-cell">
+            <div class="label">MONTE CARLO</div>
+            <div class="value secondary" id="outMCPrice">—</div>
+          </div>
+          <div class="result-cell">
+            <div class="label">MC 95% CI</div>
+            <div class="value neutral" id="outMCError">—</div>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <button class="tab-btn" data-tab="greeks">GREEKS</button>
+          <button class="tab-btn" data-tab="charts">CHARTS</button>
+          <button class="tab-btn" data-tab="analysis">ANALYSIS</button>
+        </div>
+
+        <div id="tab-greeks" class="tab-panel">
+          <div class="d-row">
+            <div class="d-cell"><div class="label">d₁</div><div class="value" id="outD1">—</div></div>
+            <div class="d-cell"><div class="label">d₂</div><div class="value" id="outD2">—</div></div>
+          </div>
+          <div class="greeks-grid">
+            <div class="greek-cell"><div class="label">DELTA</div><div class="value" id="outDelta">—</div></div>
+            <div class="greek-cell"><div class="label">GAMMA</div><div class="value" id="outGamma">—</div></div>
+            <div class="greek-cell"><div class="label">THETA / day</div><div class="value" id="outTheta">—</div></div>
+            <div class="greek-cell"><div class="label">VEGA / 1%</div><div class="value" id="outVega">—</div></div>
+            <div class="greek-cell"><div class="label">RHO / 1%</div><div class="value" id="outRho">—</div></div>
+          </div>
+        </div>
+
+        <div id="tab-charts" class="tab-panel">
+          <div class="chart-grid">
+            <div class="chart-box">
+              <h3>PAYOFF &amp; P/L</h3>
+              <canvas id="payoffChart" width="480" height="220"></canvas>
+            </div>
+            <div class="chart-box">
+              <h3>MC FINAL PRICE DISTRIBUTION</h3>
+              <canvas id="distChart" width="480" height="220"></canvas>
+            </div>
+            <div class="chart-box">
+              <h3>PRICE vs VOLATILITY</h3>
+              <canvas id="volChart" width="480" height="220"></canvas>
+            </div>
+            <div class="chart-box">
+              <h3>PRICE vs SPOT</h3>
+              <canvas id="spotChart" width="480" height="220"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-analysis" class="tab-panel">
+          <div class="iv-row">
+            <div class="iv-item"><div class="label">MARKET PRICE</div><div class="value" id="outMarketPrice">—</div></div>
+            <div class="iv-item"><div class="label">IMPLIED VOLATILITY</div><div class="value" id="outIV">—</div></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>

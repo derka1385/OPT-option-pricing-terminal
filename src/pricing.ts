@@ -10,7 +10,7 @@ export function normalCDF(x: number): number {
   const a5 = 1.061405429;
   const p = 0.3275911;
   const sign = x < 0 ? -1 : 1;
-  const absX = Math.abs(x);
+  const absX = Math.abs(x) / Math.SQRT2; // A&S 7.1.26 approximates erf, and Φ(x) = ½(1 + erf(x/√2))
   const t = 1.0 / (1.0 + p * absX);
   const y =
     1.0 -

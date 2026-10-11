@@ -1,4 +1,4 @@
-import type { OptionParams, MonteCarloResult } from "./types";
+import type { OptionParams } from "./types";
 import { blackScholes } from "./pricing";
 
 type ChartPoint = { x: number; y: number };

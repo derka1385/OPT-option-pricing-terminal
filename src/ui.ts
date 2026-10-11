@@ -62,7 +62,7 @@ export function renderResults(result: PricingResult): void {
 
   setVal("outBSPrice", fmt(bs.price));
   setVal("outMCPrice", fmt(mc.price));
-  setVal("outMCError", `±${fmt(mc.stdError)}`);
+  setVal("outMCError", `±${fmt(1.96 * mc.stdError)}`);
   setVal("outD1", fmt(bs.d1));
   setVal("outD2", fmt(bs.d2));
   setVal("outDelta", fmt(greeks.delta));
